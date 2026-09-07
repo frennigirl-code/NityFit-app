@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import localFoods from '../data/localFoods.json'
 import { searchOpenFoodFacts } from '../api/openFoodFacts'
 
-export default function AddFoodModal({ pasto, onClose, onConfirm }) {
+export default function AddFoodModal({ pasto, customFoods = [], onSaveCustomFood, onClose, onConfirm }) {
   const [tab, setTab] = useState('cerca')
   const [query, setQuery] = useState('')
   const [offResults, setOffResults] = useState([])
@@ -12,10 +12,14 @@ export default function AddFoodModal({ pasto, onClose, onConfirm }) {
   const [quantita, setQuantita] = useState(100)
   const debounceRef = useRef(null)
 
-  const localResults = query.trim().length >= 2
-    ? localFoods.filter((f) =>
-        f.nome.toLowerCase().includes(query.trim().toLowerCase())
-      )
+  const q = query.trim().toLowerCase()
+
+  const customResults = q.length >= 2
+    ? customFoods.filter((f) => f.nome.toLowerCase().includes(q))
+    : []
+
+  const localResults = q.length >= 2
+    ? localFoods.filter((f) => f.nome.toLowerCase().includes(q))
     : []
 
   useEffect(() => {
@@ -95,6 +99,15 @@ export default function AddFoodModal({ pasto, onClose, onConfirm }) {
               autoFocus
             />
 
+            {customResults.length > 0 && (
+              <div className="results-group">
+                <span className="results-label">I tuoi alimenti</span>
+                {customResults.map((f) => (
+                  <ResultRow key={f.id} food={f} onSelect={setSelected} />
+                ))}
+              </div>
+            )}
+
             {localResults.length > 0 && (
               <div className="results-group">
                 <span className="results-label">Alimenti generici</span>
@@ -118,6 +131,7 @@ export default function AddFoodModal({ pasto, onClose, onConfirm }) {
 
             {!loading &&
               query.trim().length >= 2 &&
+              customResults.length === 0 &&
               localResults.length === 0 &&
               offResults.length === 0 &&
               !error && <p className="hint-text">Nessun risultato per "{query}".</p>}
@@ -138,8 +152,11 @@ export default function AddFoodModal({ pasto, onClose, onConfirm }) {
           <ManualEntry
             quantita={quantita}
             setQuantita={setQuantita}
-            onConfirm={(food) => {
+            onConfirm={(food, salvaNelDatabase) => {
               setSelected(food)
+              if (salvaNelDatabase && onSaveCustomFood) {
+                onSaveCustomFood(food)
+              }
               onConfirm({
                 entryId: `e-${Date.now()}`,
                 ...food,
@@ -205,6 +222,7 @@ function ManualEntry({ quantita, setQuantita, onConfirm }) {
   const [proteine, setProteine] = useState('')
   const [carboidrati, setCarboidrati] = useState('')
   const [grassi, setGrassi] = useState('')
+  const [salvaNelDatabase, setSalvaNelDatabase] = useState(true)
 
   const valid = nome.trim() && kcal !== '' && quantita > 0
 
@@ -249,17 +267,29 @@ function ManualEntry({ quantita, setQuantita, onConfirm }) {
         onChange={(e) => setQuantita(e.target.value)}
       />
 
+      <label className="checkbox-row">
+        <input
+          type="checkbox"
+          checked={salvaNelDatabase}
+          onChange={(e) => setSalvaNelDatabase(e.target.checked)}
+        />
+        Salva anche nei miei alimenti (per ritrovarlo nelle ricerche future)
+      </label>
+
       <button
         className="confirm-btn"
         disabled={!valid}
         onClick={() =>
-          onConfirm({
-            nome: nome.trim(),
-            kcal: Number(kcal) || 0,
-            proteine: Number(proteine) || 0,
-            carboidrati: Number(carboidrati) || 0,
-            grassi: Number(grassi) || 0,
-          })
+          onConfirm(
+            {
+              nome: nome.trim(),
+              kcal: Number(kcal) || 0,
+              proteine: Number(proteine) || 0,
+              carboidrati: Number(carboidrati) || 0,
+              grassi: Number(grassi) || 0,
+            },
+            salvaNelDatabase
+          )
         }
       >
         Aggiungi
