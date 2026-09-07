@@ -18,6 +18,7 @@ export default function App() {
   const [profiles, setProfiles] = useLocalStorage('nf-profiles', DEFAULT_PROFILES)
   const [dayType, setDayType] = useLocalStorage('nf-daytype', 'low')
   const [mealsByDate, setMealsByDate] = useLocalStorage('nf-meals', {})
+  const [customFoods, setCustomFoods] = useLocalStorage('nf-custom-foods', [])
   const [addFoodFor, setAddFoodFor] = useState(null) // nome pasto o null
   const [settingsOpen, setSettingsOpen] = useState(false)
 
@@ -43,6 +44,16 @@ export default function App() {
       [key]: [...(prev[key] || []), voce],
     }))
     setAddFoodFor(null)
+  }
+
+  function addCustomFood(food) {
+    setCustomFoods((prev) => {
+      const esiste = prev.some(
+        (f) => f.nome.trim().toLowerCase() === food.nome.trim().toLowerCase()
+      )
+      if (esiste) return prev
+      return [...prev, { ...food, id: `custom-${Date.now()}` }]
+    })
   }
 
   function removeVoce(entryId) {
@@ -85,6 +96,8 @@ export default function App() {
       {addFoodFor && (
         <AddFoodModal
           pasto={addFoodFor}
+          customFoods={customFoods}
+          onSaveCustomFood={addCustomFood}
           onClose={() => setAddFoodFor(null)}
           onConfirm={addVoce}
         />
