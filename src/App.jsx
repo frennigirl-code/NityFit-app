@@ -5,6 +5,8 @@ import MacroBar from './components/MacroBar'
 import MealSection from './components/MealSection'
 import AddFoodModal from './components/AddFoodModal'
 import SettingsModal from './components/SettingsModal'
+import SaveTemplateModal from './components/SaveTemplateModal'
+import TemplateListModal from './components/TemplateListModal'
 import { useLocalStorage } from './hooks/useLocalStorage'
 import { calcolaTotali, todayKey, PASTI } from './utils/calculations'
 import './App.css'
@@ -19,8 +21,11 @@ export default function App() {
   const [dayType, setDayType] = useLocalStorage('nf-daytype', 'low')
   const [mealsByDate, setMealsByDate] = useLocalStorage('nf-meals', {})
   const [customFoods, setCustomFoods] = useLocalStorage('nf-custom-foods', [])
+  const [mealTemplates, setMealTemplates] = useLocalStorage('nf-meal-templates', [])
   const [addFoodFor, setAddFoodFor] = useState(null) // nome pasto o null
   const [settingsOpen, setSettingsOpen] = useState(false)
+  const [savingTemplateFor, setSavingTemplateFor] = useState(null) // nome pasto o null
+  const [templatePickerFor, setTemplatePickerFor] = useState(null) // nome pasto o null
 
   useEffect(() => {
     document.documentElement.style.setProperty(
@@ -63,6 +68,43 @@ export default function App() {
     }))
   }
 
+  function saveTemplate(pasto, nome) {
+    const voci = oggi.filter((v) => v.pasto === pasto)
+    if (voci.length === 0) return
+    const template = {
+      id: `tpl-${Date.now()}`,
+      pasto,
+      nome,
+      voci: voci.map(({ nome, kcal, proteine, carboidrati, grassi, quantita }) => ({
+        nome,
+        kcal,
+        proteine,
+        carboidrati,
+        grassi,
+        quantita,
+      })),
+    }
+    setMealTemplates((prev) => [...prev, template])
+    setSavingTemplateFor(null)
+  }
+
+  function applyTemplate(template) {
+    const nuoveVoci = template.voci.map((v) => ({
+      ...v,
+      entryId: `e-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+      pasto: template.pasto,
+    }))
+    setMealsByDate((prev) => ({
+      ...prev,
+      [key]: [...(prev[key] || []), ...nuoveVoci],
+    }))
+    setTemplatePickerFor(null)
+  }
+
+  function deleteTemplate(id) {
+    setMealTemplates((prev) => prev.filter((t) => t.id !== id))
+  }
+
   return (
     <div className="app">
       <Header
@@ -88,6 +130,9 @@ export default function App() {
               voci={oggi.filter((v) => v.pasto === pasto)}
               onAdd={() => setAddFoodFor(pasto)}
               onRemove={removeVoce}
+              onSaveTemplate={() => setSavingTemplateFor(pasto)}
+              onOpenTemplates={() => setTemplatePickerFor(pasto)}
+              templateCount={mealTemplates.filter((t) => t.pasto === pasto).length}
             />
           ))}
         </div>
@@ -108,6 +153,25 @@ export default function App() {
           profiles={profiles}
           onSave={setProfiles}
           onClose={() => setSettingsOpen(false)}
+        />
+      )}
+
+      {savingTemplateFor && (
+        <SaveTemplateModal
+          pasto={savingTemplateFor}
+          defaultName={savingTemplateFor}
+          onClose={() => setSavingTemplateFor(null)}
+          onSave={(nome) => saveTemplate(savingTemplateFor, nome)}
+        />
+      )}
+
+      {templatePickerFor && (
+        <TemplateListModal
+          pasto={templatePickerFor}
+          templates={mealTemplates.filter((t) => t.pasto === templatePickerFor)}
+          onClose={() => setTemplatePickerFor(null)}
+          onApply={applyTemplate}
+          onDelete={deleteTemplate}
         />
       )}
     </div>
