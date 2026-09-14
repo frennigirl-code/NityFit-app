@@ -1,6 +1,14 @@
 import { calcolaVoceTotale } from '../utils/calculations'
 
-export default function MealSection({ nome, voci, onAdd, onRemove }) {
+export default function MealSection({
+  nome,
+  voci,
+  onAdd,
+  onRemove,
+  onSaveTemplate,
+  onOpenTemplates,
+  templateCount = 0,
+}) {
   const kcalTotali = voci.reduce((sum, v) => sum + calcolaVoceTotale(v).kcal, 0)
 
   return (
@@ -38,6 +46,19 @@ export default function MealSection({ nome, voci, onAdd, onRemove }) {
       <button className="add-food-btn" onClick={onAdd}>
         + Aggiungi alimento
       </button>
+
+      <div className="template-actions">
+        {voci.length > 0 && (
+          <button className="template-action-btn" onClick={onSaveTemplate}>
+            Salva pasto
+          </button>
+        )}
+        {templateCount > 0 && (
+          <button className="template-action-btn" onClick={onOpenTemplates}>
+            Usa un pasto salvato ({templateCount})
+          </button>
+        )}
+      </div>
     </section>
   )
 }
