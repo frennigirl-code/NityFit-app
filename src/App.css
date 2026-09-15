@@ -545,3 +545,29 @@
   opacity: 0.4;
   cursor: not-allowed;
 }
+
+/* ---------- Font size bump (solo dimensioni testo, nessun layout toccato) ---------- */
+.wordmark { font-size: 16px; }
+.day-toggle-btn { font-size: 15px; }
+.gauge-kcal { font-size: 44px; }
+.gauge-unit { font-size: 13px; }
+.gauge-remaining { font-size: 13px; }
+.macro-row-labels { font-size: 14px; }
+.meal-header h2 { font-size: 16px; }
+.meal-kcal { font-size: 13px; }
+.meal-item-name { font-size: 15px; }
+.meal-item-qty { font-size: 13px; }
+.meal-item-kcal { font-size: 14px; }
+.add-food-btn { font-size: 14px; }
+.template-action-btn { font-size: 13px; }
+.modal-header h2 { font-size: 17px; }
+.modal-tabs button { font-size: 14px; }
+.field-label { font-size: 13px; }
+.results-label { font-size: 12px; }
+.hint-text { font-size: 14px; }
+.back-link { font-size: 14px; }
+.selected-food-name { font-size: 17px; }
+.preview-value { font-size: 15px; }
+.preview-label { font-size: 11px; }
+.confirm-btn { font-size: 15px; }
+.checkbox-row { font-size: 13.5px; }
