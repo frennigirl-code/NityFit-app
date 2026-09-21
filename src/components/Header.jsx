@@ -1,15 +1,24 @@
-export default function Header({ dayType, onChangeDayType, onOpenSettings }) {
+export default function Header({ dayType, onChangeDayType, onOpenSettings, onResetDay }) {
   return (
     <header className="header">
       <div className="header-top">
         <span className="wordmark">NityFit</span>
-        <button
-          className="gear-btn"
-          onClick={onOpenSettings}
-          aria-label="Impostazioni obiettivi"
-        >
-          <GearIcon />
-        </button>
+        <div className="header-icons">
+          <button
+            className="gear-btn"
+            onClick={onResetDay}
+            aria-label="Resetta le voci di oggi"
+          >
+            <ResetIcon />
+          </button>
+          <button
+            className="gear-btn"
+            onClick={onOpenSettings}
+            aria-label="Impostazioni obiettivi"
+          >
+            <GearIcon />
+          </button>
+        </div>
       </div>
 
       <div className="day-toggle" role="group" aria-label="Tipo di giorno">
@@ -29,6 +38,26 @@ export default function Header({ dayType, onChangeDayType, onOpenSettings }) {
         </button>
       </div>
     </header>
+  )
+}
+
+function ResetIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path
+        d="M4 12a8 8 0 1 1 2.5 5.8"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+      />
+      <path
+        d="M4 17v-4h4"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
   )
 }
 
