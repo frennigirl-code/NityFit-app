@@ -38,10 +38,23 @@ export default function App() {
     )
   }, [dayType])
 
-  const key = todayKey()
+  const key = `${todayKey()}-${dayType}`
   const oggi = mealsByDate[key] || []
   const target = profiles[dayType]
   const totali = useMemo(() => calcolaTotali(oggi), [oggi])
+
+  // Migrazione una tantum: le voci salvate col vecchio formato di chiave
+  // (solo data, senza tipo giorno) vengono spostate sotto il profilo attivo.
+  useEffect(() => {
+    const vecchiaChiave = todayKey()
+    if (mealsByDate[vecchiaChiave] && !mealsByDate[key]) {
+      setMealsByDate((prev) => {
+        const { [vecchiaChiave]: vociVecchie, ...resto } = prev
+        return { ...resto, [key]: vociVecchie }
+      })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   function addVoce(voce) {
     setMealsByDate((prev) => ({
@@ -105,12 +118,25 @@ export default function App() {
     setMealTemplates((prev) => prev.filter((t) => t.id !== id))
   }
 
+  function renameTemplate(id, nome) {
+    setMealTemplates((prev) => prev.map((t) => (t.id === id ? { ...t, nome } : t)))
+  }
+
+  function resetDay() {
+    const conferma = window.confirm(
+      `Cancellare tutte le voci di oggi (giorno ${dayType === 'high' ? 'High' : 'Low'})? L'azione non è reversibile.`
+    )
+    if (!conferma) return
+    setMealsByDate((prev) => ({ ...prev, [key]: [] }))
+  }
+
   return (
     <div className="app">
       <Header
         dayType={dayType}
         onChangeDayType={setDayType}
         onOpenSettings={() => setSettingsOpen(true)}
+        onResetDay={resetDay}
       />
 
       <main>
@@ -172,6 +198,7 @@ export default function App() {
           onClose={() => setTemplatePickerFor(null)}
           onApply={applyTemplate}
           onDelete={deleteTemplate}
+          onRename={renameTemplate}
         />
       )}
     </div>

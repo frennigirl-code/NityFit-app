@@ -22,6 +22,11 @@
   letter-spacing: 0.02em;
 }
 
+.header-icons {
+  display: flex;
+  gap: 8px;
+}
+
 .gear-btn {
   background: none;
   border: 1px solid var(--line);
@@ -315,6 +320,33 @@
   text-align: left;
 }
 
+.template-row-icons {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.icon-btn {
+  background: none;
+  border: none;
+  font-size: 15px;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 4px 6px;
+}
+
+.template-row-editing {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0;
+}
+
+.template-rename-input {
+  flex: 1;
+  margin-bottom: 0;
+}
+
 /* ---------- Modal ---------- */
 .modal-overlay {
   position: fixed;
@@ -547,27 +579,27 @@
 }
 
 /* ---------- Font size bump (solo dimensioni testo, nessun layout toccato) ---------- */
-.wordmark { font-size: 16px; }
-.day-toggle-btn { font-size: 15px; }
-.gauge-kcal { font-size: 44px; }
-.gauge-unit { font-size: 13px; }
-.gauge-remaining { font-size: 13px; }
-.macro-row-labels { font-size: 14px; }
-.meal-header h2 { font-size: 16px; }
-.meal-kcal { font-size: 13px; }
-.meal-item-name { font-size: 15px; }
-.meal-item-qty { font-size: 13px; }
-.meal-item-kcal { font-size: 14px; }
-.add-food-btn { font-size: 14px; }
-.template-action-btn { font-size: 13px; }
-.modal-header h2 { font-size: 17px; }
-.modal-tabs button { font-size: 14px; }
-.field-label { font-size: 13px; }
-.results-label { font-size: 12px; }
-.hint-text { font-size: 14px; }
-.back-link { font-size: 14px; }
-.selected-food-name { font-size: 17px; }
-.preview-value { font-size: 15px; }
-.preview-label { font-size: 11px; }
-.confirm-btn { font-size: 15px; }
-.checkbox-row { font-size: 13.5px; }
+.wordmark { font-size: 17px; }
+.day-toggle-btn { font-size: 16px; }
+.gauge-kcal { font-size: 48px; }
+.gauge-unit { font-size: 14px; }
+.gauge-remaining { font-size: 14px; }
+.macro-row-labels { font-size: 15px; }
+.meal-header h2 { font-size: 17px; }
+.meal-kcal { font-size: 14px; }
+.meal-item-name { font-size: 16px; }
+.meal-item-qty { font-size: 14px; }
+.meal-item-kcal { font-size: 15px; }
+.add-food-btn { font-size: 15px; }
+.template-action-btn { font-size: 14px; }
+.modal-header h2 { font-size: 18px; }
+.modal-tabs button { font-size: 15px; }
+.field-label { font-size: 14px; }
+.results-label { font-size: 13px; }
+.hint-text { font-size: 15px; }
+.back-link { font-size: 15px; }
+.selected-food-name { font-size: 18px; }
+.preview-value { font-size: 16px; }
+.preview-label { font-size: 12px; }
+.confirm-btn { font-size: 16px; }
+.checkbox-row { font-size: 14.5px; }
