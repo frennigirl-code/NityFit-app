@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { calcolaTotali } from '../utils/calculations'
 
-export default function TemplateListModal({ pasto, templates, onClose, onApply, onDelete, onRename }) {
+export default function TemplateListModal({ pasto, dayType, templates, onClose, onApply, onDelete, onRename, onMoveGroup }) {
   const [editingId, setEditingId] = useState(null)
   const [editValue, setEditValue] = useState('')
   const [previewing, setPreviewing] = useState(null)
@@ -72,7 +72,7 @@ export default function TemplateListModal({ pasto, templates, onClose, onApply, 
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-sheet" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
-          <h2>Pasti salvati — {pasto}</h2>
+          <h2>Pasti salvati — {pasto} · {dayType === 'high' ? 'High' : 'Low'}</h2>
           <button className="close-btn" onClick={onClose} aria-label="Chiudi">
             ×
           </button>
@@ -118,6 +118,14 @@ export default function TemplateListModal({ pasto, templates, onClose, onApply, 
                     </span>
                   </button>
                   <div className="template-row-icons">
+                    <button
+                      className="icon-btn"
+                      onClick={() => onMoveGroup(t.id, dayType === 'high' ? 'low' : 'high')}
+                      aria-label={`Sposta ${t.nome} su ${dayType === 'high' ? 'Low' : 'High'}`}
+                      title={`Sposta su ${dayType === 'high' ? 'Low' : 'High'}`}
+                    >
+                      ⇄
+                    </button>
                     <button
                       className="icon-btn"
                       onClick={() => startEdit(t)}

@@ -1,7 +1,8 @@
 import { useState } from 'react'
 
-export default function SaveTemplateModal({ pasto, defaultName, onClose, onSave }) {
+export default function SaveTemplateModal({ pasto, defaultName, defaultGroup, onClose, onSave }) {
   const [nome, setNome] = useState(defaultName)
+  const [gruppo, setGruppo] = useState(defaultGroup)
 
   return (
     <div className="modal-overlay" onClick={onClose}>
@@ -24,10 +25,30 @@ export default function SaveTemplateModal({ pasto, defaultName, onClose, onSave 
             autoFocus
           />
 
+          <label className="field-label">Gruppo</label>
+          <div className="day-toggle" role="group" aria-label="Gruppo template" style={{ marginBottom: 16 }}>
+            <button
+              type="button"
+              className={`day-toggle-btn ${gruppo === 'low' ? 'active low' : ''}`}
+              onClick={() => setGruppo('low')}
+              aria-pressed={gruppo === 'low'}
+            >
+              Low
+            </button>
+            <button
+              type="button"
+              className={`day-toggle-btn ${gruppo === 'high' ? 'active high' : ''}`}
+              onClick={() => setGruppo('high')}
+              aria-pressed={gruppo === 'high'}
+            >
+              High
+            </button>
+          </div>
+
           <button
             className="confirm-btn"
             disabled={!nome.trim()}
-            onClick={() => onSave(nome.trim())}
+            onClick={() => onSave(nome.trim(), gruppo)}
           >
             Salva template
           </button>
