@@ -84,7 +84,9 @@ export default function TemplateListModal({ pasto, templates, onClose, onApply, 
           )}
 
           <ul className="meal-list">
-            {templates.map((t) => {
+            {[...templates]
+              .sort((a, b) => a.nome.localeCompare(b.nome, 'it'))
+              .map((t) => {
               const tot = calcolaTotali(t.voci)
 
               if (editingId === t.id) {
