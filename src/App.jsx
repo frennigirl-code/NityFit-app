@@ -81,13 +81,14 @@ export default function App() {
     }))
   }
 
-  function saveTemplate(pasto, nome) {
+  function saveTemplate(pasto, nome, gruppo) {
     const voci = oggi.filter((v) => v.pasto === pasto)
     if (voci.length === 0) return
     const template = {
       id: `tpl-${Date.now()}`,
       pasto,
       nome,
+      gruppo,
       voci: voci.map(({ nome, kcal, proteine, carboidrati, grassi, quantita }) => ({
         nome,
         kcal,
@@ -120,6 +121,12 @@ export default function App() {
 
   function renameTemplate(id, nome) {
     setMealTemplates((prev) => prev.map((t) => (t.id === id ? { ...t, nome } : t)))
+  }
+
+  function moveTemplateGroup(id, nuovoGruppo) {
+    setMealTemplates((prev) =>
+      prev.map((t) => (t.id === id ? { ...t, gruppo: nuovoGruppo } : t))
+    )
   }
 
   function resetDay() {
@@ -158,7 +165,11 @@ export default function App() {
               onRemove={removeVoce}
               onSaveTemplate={() => setSavingTemplateFor(pasto)}
               onOpenTemplates={() => setTemplatePickerFor(pasto)}
-              templateCount={mealTemplates.filter((t) => t.pasto === pasto).length}
+              templateCount={
+                mealTemplates.filter(
+                  (t) => t.pasto === pasto && (t.gruppo ?? dayType) === dayType
+                ).length
+              }
             />
           ))}
         </div>
@@ -186,19 +197,24 @@ export default function App() {
         <SaveTemplateModal
           pasto={savingTemplateFor}
           defaultName={savingTemplateFor}
+          defaultGroup={dayType}
           onClose={() => setSavingTemplateFor(null)}
-          onSave={(nome) => saveTemplate(savingTemplateFor, nome)}
+          onSave={(nome, gruppo) => saveTemplate(savingTemplateFor, nome, gruppo)}
         />
       )}
 
       {templatePickerFor && (
         <TemplateListModal
           pasto={templatePickerFor}
-          templates={mealTemplates.filter((t) => t.pasto === templatePickerFor)}
+          dayType={dayType}
+          templates={mealTemplates.filter(
+            (t) => t.pasto === templatePickerFor && (t.gruppo ?? dayType) === dayType
+          )}
           onClose={() => setTemplatePickerFor(null)}
           onApply={applyTemplate}
           onDelete={deleteTemplate}
           onRename={renameTemplate}
+          onMoveGroup={moveTemplateGroup}
         />
       )}
     </div>
