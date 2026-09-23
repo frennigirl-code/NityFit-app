@@ -67,7 +67,17 @@ export default async function handler(req, res) {
       .trim()
 
     const pulito = testo.replace(/```json|```/g, '').trim()
-    const risultato = JSON.parse(pulito)
+
+    let risultato
+    try {
+      risultato = JSON.parse(pulito)
+    } catch {
+      res.status(502).json({
+        error: "Risposta dell'AI non interpretabile come JSON",
+        dettagli: testo.slice(0, 300),
+      })
+      return
+    }
 
     res.status(200).json(risultato)
   } catch (err) {
