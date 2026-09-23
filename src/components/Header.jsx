@@ -7,7 +7,7 @@ export default function Header({ dayType, onChangeDayType, onOpenSettings, onRes
           <button
             className="gear-btn"
             onClick={onResetDay}
-            aria-label="Resetta le voci di oggi"
+            aria-label={`Resetta il piano ${dayType === 'high' ? 'High' : 'Low'}`}
           >
             <ResetIcon />
           </button>
