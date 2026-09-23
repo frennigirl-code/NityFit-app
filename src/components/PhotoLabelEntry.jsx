@@ -29,10 +29,11 @@ export default function PhotoLabelEntry({ quantita, setQuantita, onConfirm }) {
       setCarboidrati(risultato.carboidrati ?? '')
       setGrassi(risultato.grassi ?? '')
       setStatus('pronto')
-    } catch {
+    } catch (err) {
       setStatus('errore')
+      const dettaglio = err?.message ? ` (${err.message})` : ''
       setErrorMsg(
-        "Non sono riuscito a leggere l'etichetta. Riprova con una foto più nitida e dritta, oppure inserisci i valori a mano qui sotto."
+        `Non sono riuscito a leggere l'etichetta${dettaglio}. Riprova con una foto più nitida e dritta, oppure inserisci i valori a mano qui sotto.`
       )
     }
   }
