@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import localFoods from '../data/localFoods.json'
 import { searchOpenFoodFacts } from '../api/openFoodFacts'
+import PhotoLabelEntry from './PhotoLabelEntry'
 
 export default function AddFoodModal({ pasto, customFoods = [], onSaveCustomFood, onClose, onConfirm }) {
   const [tab, setTab] = useState('cerca')
@@ -86,6 +87,15 @@ export default function AddFoodModal({ pasto, customFoods = [], onSaveCustomFood
           >
             Inserimento manuale
           </button>
+          <button
+            className={tab === 'foto' ? 'active' : ''}
+            onClick={() => {
+              setTab('foto')
+              setSelected(null)
+            }}
+          >
+            📷 Foto etichetta
+          </button>
         </div>
 
         {tab === 'cerca' && !selected && (
@@ -150,6 +160,25 @@ export default function AddFoodModal({ pasto, customFoods = [], onSaveCustomFood
 
         {tab === 'manuale' && (
           <ManualEntry
+            quantita={quantita}
+            setQuantita={setQuantita}
+            onConfirm={(food, salvaNelDatabase) => {
+              setSelected(food)
+              if (salvaNelDatabase && onSaveCustomFood) {
+                onSaveCustomFood(food)
+              }
+              onConfirm({
+                entryId: `e-${Date.now()}`,
+                ...food,
+                quantita: Number(quantita),
+                pasto,
+              })
+            }}
+          />
+        )}
+
+        {tab === 'foto' && (
+          <PhotoLabelEntry
             quantita={quantita}
             setQuantita={setQuantita}
             onConfirm={(food, salvaNelDatabase) => {
