@@ -15,14 +15,15 @@ export async function analyzeLabelPhoto(file) {
   })
 
   if (!res.ok) {
-    let dettagli = ''
+    let messaggio = `Errore ${res.status} dal server`
     try {
       const corpo = await res.json()
-      dettagli = corpo.error || corpo.dettagli || ''
+      const parti = [corpo.error, corpo.dettagli].filter(Boolean)
+      if (parti.length > 0) messaggio = parti.join(' — ')
     } catch {
       // risposta non in formato JSON, ignora
     }
-    throw new Error(dettagli || `Errore ${res.status} dal server`)
+    throw new Error(messaggio)
   }
 
   return res.json()
