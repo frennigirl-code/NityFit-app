@@ -8,7 +8,7 @@ import SettingsModal from './components/SettingsModal'
 import SaveTemplateModal from './components/SaveTemplateModal'
 import TemplateListModal from './components/TemplateListModal'
 import { useLocalStorage } from './hooks/useLocalStorage'
-import { calcolaTotali, todayKey, PASTI } from './utils/calculations'
+import { calcolaTotali, PASTI } from './utils/calculations'
 import './App.css'
 
 const DEFAULT_PROFILES = {
@@ -19,7 +19,12 @@ const DEFAULT_PROFILES = {
 export default function App() {
   const [profiles, setProfiles] = useLocalStorage('nf-profiles', DEFAULT_PROFILES)
   const [dayType, setDayType] = useLocalStorage('nf-daytype', 'low')
-  const [mealsByDate, setMealsByDate] = useLocalStorage('nf-meals', {})
+  // Due diari persistenti, uno per gruppo (Low/High) — non legati alla data.
+  // Restano com'erano finché non vengono resettati manualmente.
+  const [mealsByGroup, setMealsByGroup] = useLocalStorage('nf-meals-by-group', {
+    low: [],
+    high: [],
+  })
   const [customFoods, setCustomFoods] = useLocalStorage('nf-custom-foods', [])
   const [mealTemplates, setMealTemplates] = useLocalStorage('nf-meal-templates', [])
   const [addFoodFor, setAddFoodFor] = useState(null) // nome pasto o null
@@ -38,28 +43,38 @@ export default function App() {
     )
   }, [dayType])
 
-  const key = `${todayKey()}-${dayType}`
-  const oggi = mealsByDate[key] || []
+  const oggi = mealsByGroup[dayType] || []
   const target = profiles[dayType]
   const totali = useMemo(() => calcolaTotali(oggi), [oggi])
 
-  // Migrazione una tantum: le voci salvate col vecchio formato di chiave
-  // (solo data, senza tipo giorno) vengono spostate sotto il profilo attivo.
+  // Migrazione una tantum dal vecchio formato (diario per data+gruppo,
+  // es. "2026-09-22-low") ai due diari persistenti low/high.
   useEffect(() => {
-    const vecchiaChiave = todayKey()
-    if (mealsByDate[vecchiaChiave] && !mealsByDate[key]) {
-      setMealsByDate((prev) => {
-        const { [vecchiaChiave]: vociVecchie, ...resto } = prev
-        return { ...resto, [key]: vociVecchie }
+    if (window.localStorage.getItem('nf-migrated-groups')) return
+    try {
+      const vecchio = JSON.parse(window.localStorage.getItem('nf-meals') || '{}')
+      const daAggiungere = { low: [], high: [] }
+      Object.entries(vecchio).forEach(([chiave, voci]) => {
+        if (chiave.endsWith('-low')) daAggiungere.low.push(...voci)
+        else if (chiave.endsWith('-high')) daAggiungere.high.push(...voci)
       })
+      if (daAggiungere.low.length || daAggiungere.high.length) {
+        setMealsByGroup((prev) => ({
+          low: [...(prev.low || []), ...daAggiungere.low],
+          high: [...(prev.high || []), ...daAggiungere.high],
+        }))
+      }
+    } catch {
+      // niente da migrare o dato non valido, ignora
     }
+    window.localStorage.setItem('nf-migrated-groups', '1')
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   function addVoce(voce) {
-    setMealsByDate((prev) => ({
+    setMealsByGroup((prev) => ({
       ...prev,
-      [key]: [...(prev[key] || []), voce],
+      [dayType]: [...(prev[dayType] || []), voce],
     }))
     setAddFoodFor(null)
   }
@@ -75,9 +90,9 @@ export default function App() {
   }
 
   function removeVoce(entryId) {
-    setMealsByDate((prev) => ({
+    setMealsByGroup((prev) => ({
       ...prev,
-      [key]: (prev[key] || []).filter((v) => v.entryId !== entryId),
+      [dayType]: (prev[dayType] || []).filter((v) => v.entryId !== entryId),
     }))
   }
 
@@ -108,9 +123,9 @@ export default function App() {
       entryId: `e-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
       pasto: template.pasto,
     }))
-    setMealsByDate((prev) => ({
+    setMealsByGroup((prev) => ({
       ...prev,
-      [key]: [...(prev[key] || []), ...nuoveVoci],
+      [dayType]: [...(prev[dayType] || []), ...nuoveVoci],
     }))
     setTemplatePickerFor(null)
   }
@@ -131,10 +146,10 @@ export default function App() {
 
   function resetDay() {
     const conferma = window.confirm(
-      `Cancellare tutte le voci di oggi (giorno ${dayType === 'high' ? 'High' : 'Low'})? L'azione non è reversibile.`
+      `Svuotare completamente il piano ${dayType === 'high' ? 'High' : 'Low'}? L'azione non è reversibile.`
     )
     if (!conferma) return
-    setMealsByDate((prev) => ({ ...prev, [key]: [] }))
+    setMealsByGroup((prev) => ({ ...prev, [dayType]: [] }))
   }
 
   return (
